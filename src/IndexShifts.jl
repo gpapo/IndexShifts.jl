@@ -5,9 +5,25 @@ export @shiftindex
 using Compat
 using MacroTools
 
+_shiftindex_expr(x, shift) = x
+function _shiftindex_expr(x::Expr, shift)
+    if x.head == :ref
+        for i in 2:lastindex(x.args)
+            x.args[i] = :($(x.args[i]) + $shift)
+        end
+    elseif x.head == :call && x.args[1] == :getindex
+        for i in 3:lastindex(x.args)
+            x.args[i] = :($(x.args[i]) + $shift)
+        end
+    end
+    return x
+end
+
+_shiftindex(blk::Expr, shift) = MacroTools.postwalk(x -> _shiftindex_expr(x, shift), blk)
+
 """
 
-    @shiftindex shift blk
+    @shiftindex [shift = 1] blk
 
 Shift the index inside square brackets/`getindex` of `shift` positions: `a[i]`
 becomes `a[i + shift]`. It can be applied even to a block of code.
@@ -16,10 +32,10 @@ becomes `a[i + shift]`. It can be applied even to a block of code.
 ```julia-repl
 julia> x = [1, 2, 3];
 
-julia> @shiftindex 1 x[2]
+julia> @shiftindex x[2]
 3
 
-julia> @macroexpand @shiftindex 1 begin
+julia> @macroexpand @shiftindex begin
            x[0] + x[2]
            x[0:2]
        end
@@ -31,20 +47,11 @@ end
 ```
 """
 macro shiftindex(shift, blk)
-    return esc(MacroTools.postwalk(blk) do x
-        if isa(x, Expr)
-            if x.head == :ref
-                for i in 2:lastindex(x.args)
-                    x.args[i] = :($(x.args[i]) + $shift)
-                end
-            elseif x.head == :call && x.args[1] == :getindex
-                for i in 3:lastindex(x.args)
-                    x.args[i] = :($(x.args[i]) + $shift)
-                end
-            end
-        end
-        return x
-    end)
+    return esc(_shiftindex(blk, shift))
+end
+
+macro shiftindex(blk)
+    return esc(_shiftindex(blk, 1))
 end
 
 end # module

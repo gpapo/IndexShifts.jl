@@ -13,10 +13,10 @@ julia> using IndexShifts
 
 julia> x = [1, 2, 3];
 
-julia> @shiftindex 1 x[1]
+julia> @shiftindex x[1]
 2
 
-julia> @macroexpand @shiftindex 1 x[1]
+julia> @macroexpand @shiftindex x[1]
 :(x[1 + 1])
 
 julia> @shiftindex x[1] x[1]
@@ -25,7 +25,7 @@ julia> @shiftindex x[1] x[1]
 julia> @macroexpand @shiftindex x[1] x[1]
 :(x[1 + x[1]])
 
-julia> @macroexpand @shiftindex 1 begin
+julia> @macroexpand @shiftindex begin
        x[1:2] .+ x[1]
        x[2] * x[1]
        end
