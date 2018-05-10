@@ -6,7 +6,7 @@ using Compat
 using MacroTools
 
 _shiftindex_in_expr(ind, shift) = ind + shift
-_shiftindex_in_expr(ind::AbstractVector, shift) = ind .+ shift
+_shiftindex_in_expr(ind::Vector, shift) = ind .+ shift
 _shiftindex_in_expr(ind, shift::Union{Expr, Symbol}) = :($ind + $shift)
 _shiftindex_in_expr(ind::Union{Expr, Symbol}, shift) = :($ind + $shift)
 
