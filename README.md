@@ -1,5 +1,7 @@
 # IndexShifts
 
+[![Build Status](https://travis-ci.org/gpapo/IndexShifts.jl.svg?branch=master)](https://travis-ci.org/gpapo/IndexShifts.jl)
+
 Often working with 1-indexed vectors leads to ugly corrections inside squared brackets, with `+1`
 rising everywhere in the code.
 
